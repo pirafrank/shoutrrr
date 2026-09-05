@@ -20,14 +20,14 @@ test('the threads driver redirects to the threads authorize endpoint with the cl
 
     $location = $response->getTargetUrl();
 
-    expect($location)->toStartWith('https://threads.net/oauth/authorize?')
+    expect($location)->toStartWith('https://threads.com/oauth/authorize?')
         ->and($location)->toContain('client_id=threads-client-id')
         ->and($location)->toContain('scope=threads_basic%2Cthreads_content_publish%2Cthreads_manage_replies%2Cthreads_manage_insights%2Cthreads_delete');
 });
 
 test('the threads driver maps a profile fetched by token into a socialite user', function () {
     Http::fake([
-        'https://graph.threads.net/v1.0/me*' => Http::response([
+        'https://graph.threads.com/v1.0/me*' => Http::response([
             'id' => 'threads-42',
             'username' => 'ada.threads',
             'threads_profile_picture_url' => 'https://threads.example/avatar.jpg',
@@ -41,5 +41,5 @@ test('the threads driver maps a profile fetched by token into a socialite user',
         ->and($user->getName())->toBe('ada.threads')
         ->and($user->getAvatar())->toBe('https://threads.example/avatar.jpg');
 
-    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://graph.threads.net/v1.0/me?fields=id%2Cusername%2Cthreads_profile_picture_url&access_token=short-lived-token');
+    Http::assertSent(fn (Request $request): bool => $request->url() === 'https://graph.threads.com/v1.0/me?fields=id%2Cusername%2Cthreads_profile_picture_url&access_token=short-lived-token');
 });

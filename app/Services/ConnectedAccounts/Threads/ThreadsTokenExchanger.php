@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Date;
 
 class ThreadsTokenExchanger
 {
-    private const string BASE_URL = 'https://graph.threads.net';
+    private const string BASE_URL = 'https://graph.threads.com';
 
     public function __construct(private readonly HttpFactory $http) {}
 

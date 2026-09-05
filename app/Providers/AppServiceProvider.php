@@ -70,8 +70,8 @@ class AppServiceProvider extends ServiceProvider
         Cashier::calculateTaxes();
 
         // Threads has no first-party Socialite driver (separate OAuth surface
-        // from the rest of Meta — authorizes at threads.net, token/API at
-        // graph.threads.net). Hand-rolled to match the app's bespoke approach.
+        // from the rest of Meta — authorizes at threads.com, token/API at
+        // graph.threads.com). Hand-rolled to match the app's bespoke approach.
         Socialite::extend('threads', fn ($app) => Socialite::buildProvider(
             ThreadsProvider::class,
             config('services.threads'),

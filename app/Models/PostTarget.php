@@ -38,6 +38,7 @@ use Override;
  * @property int $attempts
  * @property CarbonImmutable|null $next_attempt_at
  * @property string|null $idempotency_key
+ * @property list<string>|null $mastodon_clone_remote_ids
  * @property CarbonImmutable|null $posted_at
  * @property CarbonImmutable|null $reposted_at
  * @property string|null $repost_remote_id
@@ -70,6 +71,7 @@ use Override;
     'attempts',
     'next_attempt_at',
     'idempotency_key',
+    'mastodon_clone_remote_ids',
     'posted_at',
     'reposted_at',
     'repost_remote_id',
@@ -105,6 +107,7 @@ class PostTarget extends Model
             'auto_split' => 'boolean',
             'format' => PostFormat::class,
             'remote_ids' => 'array',
+            'mastodon_clone_remote_ids' => 'array',
             'media_upload_state' => 'array',
             'error_kind' => ErrorKind::class,
             'attempts' => 'integer',

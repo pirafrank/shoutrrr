@@ -26,7 +26,7 @@ function threadsEngagementAccount(): ConnectedAccount
 
 test('fetchReplies maps replies to FetchedReply', function () {
     Http::fake([
-        'graph.threads.net/v1.0/MEDIA1/replies*' => Http::response([
+        'graph.threads.com/v1.0/MEDIA1/replies*' => Http::response([
             'data' => [
                 [
                     'id' => 'R1',
@@ -59,7 +59,7 @@ test('fetchReplies maps replies to FetchedReply', function () {
 });
 
 test('fetchReplies maps 403 to unsupported', function () {
-    Http::fake(['graph.threads.net/v1.0/MEDIA1/replies*' => Http::response(['error' => ['message' => 'no perms']], 403)]);
+    Http::fake(['graph.threads.com/v1.0/MEDIA1/replies*' => Http::response(['error' => ['message' => 'no perms']], 403)]);
 
     $target = PostTarget::factory()->create(['platform' => Platform::Threads, 'remote_id' => 'MEDIA1']);
 
@@ -70,9 +70,9 @@ test('fetchReplies maps 403 to unsupported', function () {
 
 test('postReply creates a container with reply_to_id, polls, then publishes', function () {
     Http::fake([
-        'graph.threads.net/v1.0/THREADSUSER1/threads' => Http::response(['id' => 'CONTAINER1']),
-        'graph.threads.net/v1.0/CONTAINER1*' => Http::response(['status' => 'FINISHED']),
-        'graph.threads.net/v1.0/THREADSUSER1/threads_publish' => Http::response(['id' => 'R2']),
+        'graph.threads.com/v1.0/THREADSUSER1/threads' => Http::response(['id' => 'CONTAINER1']),
+        'graph.threads.com/v1.0/CONTAINER1*' => Http::response(['status' => 'FINISHED']),
+        'graph.threads.com/v1.0/THREADSUSER1/threads_publish' => Http::response(['id' => 'R2']),
     ]);
 
     $parent = PostTargetReply::factory()->create([
@@ -122,8 +122,8 @@ test('postReply declines media (Threads replies cannot carry attachments in this
 
 test('postReply returns failed when the container never finishes processing', function () {
     Http::fake([
-        'graph.threads.net/v1.0/THREADSUSER1/threads' => Http::response(['id' => 'CONTAINER1']),
-        'graph.threads.net/v1.0/CONTAINER1*' => Http::response(['status' => 'IN_PROGRESS']),
+        'graph.threads.com/v1.0/THREADSUSER1/threads' => Http::response(['id' => 'CONTAINER1']),
+        'graph.threads.com/v1.0/CONTAINER1*' => Http::response(['status' => 'IN_PROGRESS']),
     ]);
 
     $parent = PostTargetReply::factory()->create([
@@ -172,7 +172,7 @@ test('unlikeReply is unsupported and sends no HTTP request', function () {
 });
 
 test('deleteReply deletes the reply', function () {
-    Http::fake(['graph.threads.net/v1.0/R1*' => Http::response(['success' => true])]);
+    Http::fake(['graph.threads.com/v1.0/R1*' => Http::response(['success' => true])]);
 
     $reply = PostTargetReply::factory()->create([
         'platform' => Platform::Threads,

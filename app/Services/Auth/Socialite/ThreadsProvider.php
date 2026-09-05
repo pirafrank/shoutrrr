@@ -12,8 +12,8 @@ use Laravel\Socialite\Two\User;
  * Hand-rolled Socialite driver for Threads.
  *
  * Threads is a separate OAuth surface from the rest of the Meta platforms:
- * it authorizes at threads.net but exchanges tokens and reads profile data
- * against graph.threads.net, and its short-lived token response omits
+ * it authorizes at threads.com but exchanges tokens and reads profile data
+ * against graph.threads.com, and its short-lived token response omits
  * `expires_in` entirely (the token is valid ~1h; long-lived exchange and
  * refresh happen out-of-band of Socialite). Laravel Socialite has no
  * first-party driver for it, so this mirrors the app's existing bespoke
@@ -35,12 +35,12 @@ class ThreadsProvider extends AbstractProvider
 
     protected function getAuthUrl($state): string
     {
-        return $this->buildAuthUrlFromBase('https://threads.net/oauth/authorize', $state);
+        return $this->buildAuthUrlFromBase('https://threads.com/oauth/authorize', $state);
     }
 
     protected function getTokenUrl(): string
     {
-        return 'https://graph.threads.net/oauth/access_token';
+        return 'https://graph.threads.com/oauth/access_token';
     }
 
     /**
@@ -81,7 +81,7 @@ class ThreadsProvider extends AbstractProvider
      */
     protected function getUserByToken($token): array
     {
-        $response = Http::get('https://graph.threads.net/v1.0/me', [
+        $response = Http::get('https://graph.threads.com/v1.0/me', [
             'fields' => 'id,username,threads_profile_picture_url',
             'access_token' => $token,
         ]);
