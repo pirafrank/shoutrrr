@@ -1,7 +1,7 @@
 # The upstream image supplies the pinned application and vendor tree, but its
 # FrankenPHP worker is currently broken. Run that application on pinned PHP
 # CLI instead, with the same queue and scheduler processes.
-FROM ghcr.io/coollabsio/shoutrrr@sha256:6516567974ee04f9b6c24caac0ee1371adc559c40643c6160b64ec763ddb7733 AS app
+FROM ghcr.io/coollabsio/shoutrrr@sha256:2789712afd33727f6937e2dff1125af9c92e7eac0e62045d55bbbc6b35683ff7 AS app
 
 FROM serversideup/php:8.5-cli-bookworm@sha256:cd6e93114d3cd9bf7785538691746ed534d3a36c1eaf4e3cff64651e3f1a249c
 
