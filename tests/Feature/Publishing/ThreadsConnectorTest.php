@@ -35,9 +35,9 @@ function threadsContext(array $segments, array $media = [], array $targetOverrid
 
 test('threads publishes a single text post through the container flow', function () {
     Http::fake([
-        'https://graph.threads.net/v1.0/threads123/threads' => Http::response(['id' => 'container-1']),
-        'https://graph.threads.net/v1.0/container-1*' => Http::response(['status' => 'FINISHED']),
-        'https://graph.threads.net/v1.0/threads123/threads_publish' => Http::response(['id' => 'post-1']),
+        'https://graph.threads.com/v1.0/threads123/threads' => Http::response(['id' => 'container-1']),
+        'https://graph.threads.com/v1.0/container-1*' => Http::response(['status' => 'FINISHED']),
+        'https://graph.threads.com/v1.0/threads123/threads_publish' => Http::response(['id' => 'post-1']),
     ]);
 
     $result = app(ThreadsConnector::class)->publish(threadsContext(['hello world']));
@@ -57,12 +57,12 @@ test('threads publishes a single text post through the container flow', function
 
 test('threads publishes a 2-segment thread chaining reply_to_id and accumulates remote_ids', function () {
     Http::fake([
-        'https://graph.threads.net/v1.0/threads123/threads' => Http::sequence()
+        'https://graph.threads.com/v1.0/threads123/threads' => Http::sequence()
             ->push(['id' => 'container-1'])
             ->push(['id' => 'container-2']),
-        'https://graph.threads.net/v1.0/container-1*' => Http::response(['status' => 'FINISHED']),
-        'https://graph.threads.net/v1.0/container-2*' => Http::response(['status' => 'FINISHED']),
-        'https://graph.threads.net/v1.0/threads123/threads_publish' => Http::sequence()
+        'https://graph.threads.com/v1.0/container-1*' => Http::response(['status' => 'FINISHED']),
+        'https://graph.threads.com/v1.0/container-2*' => Http::response(['status' => 'FINISHED']),
+        'https://graph.threads.com/v1.0/threads123/threads_publish' => Http::sequence()
             ->push(['id' => 'post-1'])
             ->push(['id' => 'post-2']),
     ]);
@@ -84,9 +84,9 @@ test('threads publishes a 2-segment thread chaining reply_to_id and accumulates 
 
 test('threads resumes a partial chain from persisted remote_ids, continuing at the next segment', function () {
     Http::fake([
-        'https://graph.threads.net/v1.0/threads123/threads' => Http::response(['id' => 'container-2']),
-        'https://graph.threads.net/v1.0/container-2*' => Http::response(['status' => 'FINISHED']),
-        'https://graph.threads.net/v1.0/threads123/threads_publish' => Http::response(['id' => 'post-2']),
+        'https://graph.threads.com/v1.0/threads123/threads' => Http::response(['id' => 'container-2']),
+        'https://graph.threads.com/v1.0/container-2*' => Http::response(['status' => 'FINISHED']),
+        'https://graph.threads.com/v1.0/threads123/threads_publish' => Http::response(['id' => 'post-2']),
     ]);
 
     $context = threadsContext(['first', 'second'], [], [
@@ -115,9 +115,9 @@ test('threads publishes a single image as an IMAGE container', function () {
     $media = PostMedia::factory()->create(['disk' => 'public', 'path' => 'media/pic.jpg', 'mime' => 'image/jpeg']);
 
     Http::fake([
-        'https://graph.threads.net/v1.0/threads123/threads' => Http::response(['id' => 'container-1']),
-        'https://graph.threads.net/v1.0/container-1*' => Http::response(['status' => 'FINISHED']),
-        'https://graph.threads.net/v1.0/threads123/threads_publish' => Http::response(['id' => 'post-1']),
+        'https://graph.threads.com/v1.0/threads123/threads' => Http::response(['id' => 'container-1']),
+        'https://graph.threads.com/v1.0/container-1*' => Http::response(['status' => 'FINISHED']),
+        'https://graph.threads.com/v1.0/threads123/threads_publish' => Http::response(['id' => 'post-1']),
     ]);
 
     $result = app(ThreadsConnector::class)->publish(threadsContext(['look at this'], [$media]));
@@ -139,9 +139,9 @@ test('threads publishes a caption-less image as an IMAGE container with empty te
     $media = PostMedia::factory()->create(['disk' => 'public', 'path' => 'media/pic.jpg', 'mime' => 'image/jpeg']);
 
     Http::fake([
-        'https://graph.threads.net/v1.0/threads123/threads' => Http::response(['id' => 'container-1']),
-        'https://graph.threads.net/v1.0/container-1*' => Http::response(['status' => 'FINISHED']),
-        'https://graph.threads.net/v1.0/threads123/threads_publish' => Http::response(['id' => 'post-1']),
+        'https://graph.threads.com/v1.0/threads123/threads' => Http::response(['id' => 'container-1']),
+        'https://graph.threads.com/v1.0/container-1*' => Http::response(['status' => 'FINISHED']),
+        'https://graph.threads.com/v1.0/threads123/threads_publish' => Http::response(['id' => 'post-1']),
     ]);
 
     // Blank segment + media: valid on Threads, must not be rejected as empty.
@@ -165,8 +165,8 @@ test('threads rejects a post with neither text nor media', function () {
 
 test('threads returns a MediaProcessing failure while the container status is IN_PROGRESS, polling with fields=status', function () {
     Http::fake([
-        'https://graph.threads.net/v1.0/threads123/threads' => Http::response(['id' => 'container-1']),
-        'https://graph.threads.net/v1.0/container-1*' => Http::response(['status' => 'IN_PROGRESS']),
+        'https://graph.threads.com/v1.0/threads123/threads' => Http::response(['id' => 'container-1']),
+        'https://graph.threads.com/v1.0/container-1*' => Http::response(['status' => 'IN_PROGRESS']),
     ]);
 
     $result = app(ThreadsConnector::class)->publish(threadsContext(['processing']));
@@ -190,12 +190,12 @@ test('threads builds a carousel from two images then publishes the parent contai
     $second = PostMedia::factory()->create(['disk' => 'public', 'path' => 'media/b.jpg', 'mime' => 'image/jpeg']);
 
     Http::fake([
-        'https://graph.threads.net/v1.0/threads123/threads' => Http::sequence()
+        'https://graph.threads.com/v1.0/threads123/threads' => Http::sequence()
             ->push(['id' => 'child-1'])
             ->push(['id' => 'child-2'])
             ->push(['id' => 'parent-1']),
-        'https://graph.threads.net/v1.0/parent-1*' => Http::response(['status' => 'FINISHED']),
-        'https://graph.threads.net/v1.0/threads123/threads_publish' => Http::response(['id' => 'post-carousel']),
+        'https://graph.threads.com/v1.0/parent-1*' => Http::response(['status' => 'FINISHED']),
+        'https://graph.threads.com/v1.0/threads123/threads_publish' => Http::response(['id' => 'post-carousel']),
     ]);
 
     $result = app(ThreadsConnector::class)->publish(threadsContext(['carousel caption'], [$first, $second]));
@@ -222,9 +222,9 @@ test('threads publishes a video as a VIDEO container', function () {
     $media = PostMedia::factory()->video()->create(['disk' => 'public', 'path' => 'media/clip.mp4']);
 
     Http::fake([
-        'https://graph.threads.net/v1.0/threads123/threads' => Http::response(['id' => 'video-container']),
-        'https://graph.threads.net/v1.0/video-container*' => Http::response(['status' => 'FINISHED']),
-        'https://graph.threads.net/v1.0/threads123/threads_publish' => Http::response(['id' => 'video-post']),
+        'https://graph.threads.com/v1.0/threads123/threads' => Http::response(['id' => 'video-container']),
+        'https://graph.threads.com/v1.0/video-container*' => Http::response(['status' => 'FINISHED']),
+        'https://graph.threads.com/v1.0/threads123/threads_publish' => Http::response(['id' => 'video-post']),
     ]);
 
     $result = app(ThreadsConnector::class)->publish(threadsContext(['watch this'], [$media]));
@@ -240,7 +240,7 @@ test('threads publishes a video as a VIDEO container', function () {
 
 test('threads maps a 401 to AuthExpired', function () {
     Http::fake([
-        'https://graph.threads.net/v1.0/threads123/threads' => Http::response(['error' => ['message' => 'expired']], 401),
+        'https://graph.threads.com/v1.0/threads123/threads' => Http::response(['error' => ['message' => 'expired']], 401),
     ]);
 
     $result = app(ThreadsConnector::class)->publish(threadsContext(['hi']));
@@ -273,8 +273,8 @@ test('threads fails fast with no access token and makes no http calls', function
 
 test('threads delete removes every post in the chain', function () {
     Http::fake([
-        'https://graph.threads.net/v1.0/post-1*' => Http::response([], 404),
-        'https://graph.threads.net/v1.0/post-2*' => Http::response(['success' => true]),
+        'https://graph.threads.com/v1.0/post-1*' => Http::response([], 404),
+        'https://graph.threads.com/v1.0/post-2*' => Http::response(['success' => true]),
     ]);
 
     $target = PostTarget::factory()->create([
@@ -291,7 +291,7 @@ test('threads delete removes every post in the chain', function () {
 
 test('threads delete throws when Graph rejects the call (e.g. missing threads_delete)', function () {
     Http::fake([
-        'https://graph.threads.net/v1.0/*' => Http::response([
+        'https://graph.threads.com/v1.0/*' => Http::response([
             'error' => [
                 'message' => 'Missing Permission',
                 'type' => 'OAuthException',

@@ -54,7 +54,7 @@ function fakeThreadsOAuthUser(array $data): SocialiteUser
     $provider = Mockery::mock(AbstractProvider::class);
     $provider->shouldReceive('setScopes')->andReturnSelf();
     $provider->shouldReceive('redirectUrl')->andReturnSelf();
-    $provider->shouldReceive('redirect')->andReturn(redirect('https://threads.net/oauth/authorize?client_id=threads-cid'));
+    $provider->shouldReceive('redirect')->andReturn(redirect('https://threads.com/oauth/authorize?client_id=threads-cid'));
     $provider->shouldReceive('user')->andReturn($user);
 
     Socialite::shouldReceive('driver')->with('threads')->andReturn($provider);
@@ -62,7 +62,7 @@ function fakeThreadsOAuthUser(array $data): SocialiteUser
     return $user;
 }
 
-test('redirect sends an owner to threads.net when threads is configured', function () {
+test('redirect sends an owner to threads.com when threads is configured', function () {
     config()->set('services.threads.client_id', 'threads-cid');
     config()->set('services.threads.client_secret', 'threads-secret');
     config()->set('services.threads.redirect', 'https://app.test/accounts/callback/threads');
@@ -70,7 +70,7 @@ test('redirect sends an owner to threads.net when threads is configured', functi
     fakeThreadsOAuthUser(['id' => 'threads-1']);
 
     test()->get('/accounts/connect/threads')
-        ->assertRedirect('https://threads.net/oauth/authorize?client_id=threads-cid');
+        ->assertRedirect('https://threads.com/oauth/authorize?client_id=threads-cid');
 });
 
 test('callback exchanges the short-lived token for a long-lived one and persists a threads account', function () {
@@ -86,7 +86,7 @@ test('callback exchanges the short-lived token for a long-lived one and persists
         'token' => 'short-lived-tok',
     ]);
     Http::fake([
-        'https://graph.threads.net/access_token*' => Http::response([
+        'https://graph.threads.com/access_token*' => Http::response([
             'access_token' => 'long-lived-tok',
             'token_type' => 'bearer',
             'expires_in' => 5_183_944, // ~60 days
@@ -110,7 +110,7 @@ test('callback exchanges the short-lived token for a long-lived one and persists
         ->and($account->token_expires_at->diffInDays(now(), true))->toBeGreaterThan(59)
         ->and($account->token_expires_at->diffInDays(now(), true))->toBeLessThan(61);
 
-    Http::assertSent(fn ($request) => $request->url() === 'https://graph.threads.net/access_token?grant_type=th_exchange_token&client_secret=threads-secret&access_token=short-lived-tok');
+    Http::assertSent(fn ($request) => $request->url() === 'https://graph.threads.com/access_token?grant_type=th_exchange_token&client_secret=threads-secret&access_token=short-lived-tok');
 });
 
 test('callback redirects with a friendly error instead of 500ing when the long-lived exchange fails', function () {
@@ -124,7 +124,7 @@ test('callback redirects with a friendly error instead of 500ing when the long-l
         'token' => 'short-lived-tok',
     ]);
     Http::fake([
-        'https://graph.threads.net/access_token*' => Http::response(['error' => ['message' => 'bad token']], 400),
+        'https://graph.threads.com/access_token*' => Http::response(['error' => ['message' => 'bad token']], 400),
     ]);
 
     test()->get('/accounts/callback/threads')
@@ -145,9 +145,9 @@ test('the freshly connected threads account can publish through the registered c
     ]);
 
     Http::fake([
-        'https://graph.threads.net/v1.0/threads123/threads' => Http::response(['id' => 'container-1']),
-        'https://graph.threads.net/v1.0/container-1*' => Http::response(['status' => 'FINISHED']),
-        'https://graph.threads.net/v1.0/threads123/threads_publish' => Http::response(['id' => 'post-1']),
+        'https://graph.threads.com/v1.0/threads123/threads' => Http::response(['id' => 'container-1']),
+        'https://graph.threads.com/v1.0/container-1*' => Http::response(['status' => 'FINISHED']),
+        'https://graph.threads.com/v1.0/threads123/threads_publish' => Http::response(['id' => 'post-1']),
     ]);
 
     $context = new PublishContext(

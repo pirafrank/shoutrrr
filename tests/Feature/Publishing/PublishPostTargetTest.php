@@ -6,6 +6,8 @@ use App\Enums\ConnectedAccountStatus;
 use App\Enums\ErrorKind;
 use App\Enums\PostStatus;
 use App\Enums\PostTargetStatus;
+use App\Enums\Platform;
+use App\Jobs\CloneThreadsPostToMastodon;
 use App\Jobs\PublishPostTarget;
 use App\Models\PostTargetAttempt;
 use App\Services\Publishing\BackoffSchedule;
@@ -35,6 +37,26 @@ test('successful publish marks the target published with remote ids', function (
 
     expect(PostTargetAttempt::where('post_target_id', $target->id)->where('status', 'published')->count())->toBe(1);
     expect($target->post->refresh()->status)->toBe(PostStatus::Published);
+});
+
+test('successful Threads publish dispatches an isolated Mastodon clone job', function () {
+    Bus::fake();
+    $target = publishTarget(['one', 'two']);
+    $target->forceFill(['platform' => Platform::Threads->value])->save();
+    $target->account()->update(['platform' => Platform::Threads->value]);
+    bindConnector(PublishResult::success(['111', '222']));
+
+    (new PublishPostTarget($target))->handle(
+        app(PublishConnectorRegistry::class),
+        app(TokenManager::class),
+        app(PostStatusRollup::class),
+        app(BackoffSchedule::class),
+    );
+
+    Bus::assertDispatched(
+        CloneThreadsPostToMastodon::class,
+        fn (CloneThreadsPostToMastodon $job): bool => $job->targetId === $target->id,
+    );
 });
 
 test('retryable failure schedules a retry and re-dispatches', function () {

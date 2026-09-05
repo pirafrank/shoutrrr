@@ -365,7 +365,7 @@ test('fresh refreshes a threads token via refresh_access_token and persists the 
     ]);
 
     Http::fake([
-        'https://graph.threads.net/refresh_access_token*' => Http::response([
+        'https://graph.threads.com/refresh_access_token*' => Http::response([
             'access_token' => 'new-long-token',
             'expires_in' => 5183944,
         ]),
@@ -375,7 +375,7 @@ test('fresh refreshes a threads token via refresh_access_token and persists the 
 
     expect($creds['access_token'])->toBe('new-long-token');
 
-    Http::assertSent(fn ($request) => $request->url() === 'https://graph.threads.net/refresh_access_token?grant_type=th_refresh_token&access_token=old-long-token');
+    Http::assertSent(fn ($request) => $request->url() === 'https://graph.threads.com/refresh_access_token?grant_type=th_refresh_token&access_token=old-long-token');
 
     $account->refresh();
     expect($account->secret->access_token)->toBe('new-long-token')
@@ -450,7 +450,7 @@ test('fresh flips a threads account to needs-attention and throws on refresh fai
         'access_token' => 'stale-long-token',
     ]);
 
-    Http::fake(['https://graph.threads.net/refresh_access_token*' => Http::response([], 400)]);
+    Http::fake(['https://graph.threads.com/refresh_access_token*' => Http::response([], 400)]);
 
     expect(fn () => app(TokenManager::class)->fresh($account->fresh()))
         ->toThrow(TokenRefreshException::class);

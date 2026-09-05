@@ -20,7 +20,7 @@ class ThreadsMetricsConnector implements MetricsConnector
 {
     use TracksUsage;
 
-    private const string BASE_URL = 'https://graph.threads.net/v1.0';
+    private const string BASE_URL = 'https://graph.threads.com/v1.0';
 
     public function __construct(private readonly HttpFactory $http) {}
 

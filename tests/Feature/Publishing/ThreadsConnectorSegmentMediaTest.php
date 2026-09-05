@@ -35,12 +35,12 @@ test('media attaches to the section the resolver assigned, not always the first'
     );
 
     Http::fake([
-        'https://graph.threads.net/v1.0/threads123/threads' => Http::sequence()
+        'https://graph.threads.com/v1.0/threads123/threads' => Http::sequence()
             ->push(['id' => 'container-1'])
             ->push(['id' => 'container-2']),
-        'https://graph.threads.net/v1.0/container-1*' => Http::response(['status' => 'FINISHED']),
-        'https://graph.threads.net/v1.0/container-2*' => Http::response(['status' => 'FINISHED']),
-        'https://graph.threads.net/v1.0/threads123/threads_publish' => Http::sequence()
+        'https://graph.threads.com/v1.0/container-1*' => Http::response(['status' => 'FINISHED']),
+        'https://graph.threads.com/v1.0/container-2*' => Http::response(['status' => 'FINISHED']),
+        'https://graph.threads.com/v1.0/threads123/threads_publish' => Http::sequence()
             ->push(['id' => 'post-1'])
             ->push(['id' => 'post-2']),
     ]);
@@ -94,12 +94,12 @@ test('a media-only first segment keeps its own container and does not leak media
     );
 
     Http::fake([
-        'https://graph.threads.net/v1.0/threads123/threads' => Http::sequence()
+        'https://graph.threads.com/v1.0/threads123/threads' => Http::sequence()
             ->push(['id' => 'container-1'])
             ->push(['id' => 'container-2']),
-        'https://graph.threads.net/v1.0/container-1*' => Http::response(['status' => 'FINISHED']),
-        'https://graph.threads.net/v1.0/container-2*' => Http::response(['status' => 'FINISHED']),
-        'https://graph.threads.net/v1.0/threads123/threads_publish' => Http::sequence()
+        'https://graph.threads.com/v1.0/container-1*' => Http::response(['status' => 'FINISHED']),
+        'https://graph.threads.com/v1.0/container-2*' => Http::response(['status' => 'FINISHED']),
+        'https://graph.threads.com/v1.0/threads123/threads_publish' => Http::sequence()
             ->push(['id' => 'post-1'])
             ->push(['id' => 'post-2']),
     ]);

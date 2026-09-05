@@ -10,7 +10,7 @@ test('exchangeForLongLived maps a short-lived token to a 60-day long-lived one',
     config()->set('services.threads.client_secret', 'tsecret');
 
     Http::fake([
-        'https://graph.threads.net/access_token*' => Http::response([
+        'https://graph.threads.com/access_token*' => Http::response([
             'access_token' => 'long-token',
             'token_type' => 'bearer',
             'expires_in' => 5183944,
@@ -23,13 +23,13 @@ test('exchangeForLongLived maps a short-lived token to a 60-day long-lived one',
         ->and($result['expiresAt']->diffInDays(now(), true))->toBeGreaterThan(59)
         ->and($result['expiresAt']->diffInDays(now(), true))->toBeLessThan(61);
 
-    Http::assertSent(fn ($request) => $request->url() === 'https://graph.threads.net/access_token?grant_type=th_exchange_token&client_secret=tsecret&access_token=short-token'
+    Http::assertSent(fn ($request) => $request->url() === 'https://graph.threads.com/access_token?grant_type=th_exchange_token&client_secret=tsecret&access_token=short-token'
         && $request->method() === 'GET');
 });
 
 test('exchangeForLongLived throws when the exchange fails', function () {
     Http::fake([
-        'https://graph.threads.net/access_token*' => Http::response(['error' => ['message' => 'bad token']], 400),
+        'https://graph.threads.com/access_token*' => Http::response(['error' => ['message' => 'bad token']], 400),
     ]);
 
     expect(fn () => app(ThreadsTokenExchanger::class)->exchangeForLongLived('short-token'))
@@ -38,7 +38,7 @@ test('exchangeForLongLived throws when the exchange fails', function () {
 
 test('refresh maps a long-lived token to a new long-lived one', function () {
     Http::fake([
-        'https://graph.threads.net/refresh_access_token*' => Http::response([
+        'https://graph.threads.com/refresh_access_token*' => Http::response([
             'access_token' => 'refreshed-token',
             'token_type' => 'bearer',
             'expires_in' => 5183944,
@@ -50,13 +50,13 @@ test('refresh maps a long-lived token to a new long-lived one', function () {
     expect($result['token'])->toBe('refreshed-token')
         ->and($result['expiresAt']->diffInDays(now(), true))->toBeGreaterThan(59);
 
-    Http::assertSent(fn ($request) => $request->url() === 'https://graph.threads.net/refresh_access_token?grant_type=th_refresh_token&access_token=old-long-token'
+    Http::assertSent(fn ($request) => $request->url() === 'https://graph.threads.com/refresh_access_token?grant_type=th_refresh_token&access_token=old-long-token'
         && $request->method() === 'GET');
 });
 
 test('refresh throws when the refresh fails', function () {
     Http::fake([
-        'https://graph.threads.net/refresh_access_token*' => Http::response([], 400),
+        'https://graph.threads.com/refresh_access_token*' => Http::response([], 400),
     ]);
 
     expect(fn () => app(ThreadsTokenExchanger::class)->refresh('old-long-token'))

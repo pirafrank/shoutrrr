@@ -70,6 +70,11 @@ return [
         'redirect' => env('THREADS_REDIRECT_URI'),
     ],
 
+    'mastodon' => [
+        'internal_webhook_url' => env('MASTODON_INTERNAL_WEBHOOK_URL'),
+        'internal_webhook_secret' => env('MASTODON_INTERNAL_WEBHOOK_SECRET'),
+    ],
+
     'klipy' => [
         'key' => env('KLIPY_API_KEY'),
         'share_trigger' => env('KLIPY_SHARE_TRIGGER', true),

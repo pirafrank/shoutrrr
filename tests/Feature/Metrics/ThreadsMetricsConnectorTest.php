@@ -13,7 +13,7 @@ beforeEach(function () {
 
 test('fetchPost maps insights metrics to ok', function () {
     Http::fake([
-        'graph.threads.net/v1.0/*/insights*' => Http::response([
+        'graph.threads.com/v1.0/*/insights*' => Http::response([
             'data' => [
                 ['name' => 'views', 'period' => 'lifetime', 'values' => [['value' => 250]]],
                 ['name' => 'likes', 'period' => 'lifetime', 'values' => [['value' => 9]]],
@@ -38,7 +38,7 @@ test('fetchPost maps insights metrics to ok', function () {
 });
 
 test('429 on insights maps to rate limited', function () {
-    Http::fake(['graph.threads.net/v1.0/*/insights*' => Http::response([], 429)]);
+    Http::fake(['graph.threads.com/v1.0/*/insights*' => Http::response([], 429)]);
 
     $account = ConnectedAccount::factory()->create(['platform' => Platform::Threads]);
     $target = PostTarget::factory()->create(['platform' => Platform::Threads, 'remote_id' => '17800000000000001']);
@@ -49,7 +49,7 @@ test('429 on insights maps to rate limited', function () {
 
 test('fetchAccount maps followers_count from threads_insights total_value shape', function () {
     Http::fake([
-        'graph.threads.net/v1.0/*/threads_insights*' => Http::response([
+        'graph.threads.com/v1.0/*/threads_insights*' => Http::response([
             'data' => [
                 ['name' => 'followers_count', 'period' => 'lifetime', 'total_value' => ['value' => 42]],
             ],
@@ -66,7 +66,7 @@ test('fetchAccount maps followers_count from threads_insights total_value shape'
 
 test('fetchAccount maps followers_count from threads_insights values shape', function () {
     Http::fake([
-        'graph.threads.net/v1.0/*/threads_insights*' => Http::response([
+        'graph.threads.com/v1.0/*/threads_insights*' => Http::response([
             'data' => [
                 ['name' => 'followers_count', 'period' => 'lifetime', 'values' => [['value' => 17]]],
             ],

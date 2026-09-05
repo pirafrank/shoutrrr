@@ -411,6 +411,9 @@ class PublishPostTarget implements ShouldQueue
         ])->save();
 
         $this->notifyPublished($target);
+        if ($target->platform === Platform::Threads) {
+            CloneThreadsPostToMastodon::dispatch($target->id);
+        }
     }
 
     private function onFailure(PostTarget $target, PostTargetAttempt $attempt, PublishResult $result, BackoffSchedule $backoff): void

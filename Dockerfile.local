@@ -1,0 +1,32 @@
+# The upstream image supplies the pinned application and vendor tree, but its
+# FrankenPHP worker is currently broken. Run that application on pinned PHP
+# CLI instead, with the same queue and scheduler processes.
+FROM ghcr.io/coollabsio/shoutrrr@sha256:6516567974ee04f9b6c24caac0ee1371adc559c40643c6160b64ec763ddb7733 AS app
+
+FROM serversideup/php:8.5-cli-bookworm@sha256:cd6e93114d3cd9bf7785538691746ed534d3a36c1eaf4e3cff64651e3f1a249c
+
+COPY --from=app /var/www/html /var/www/html
+
+# Overlay the local Threads integration fixes on the pinned upstream app.
+COPY app/Providers/AppServiceProvider.php /var/www/html/app/Providers/AppServiceProvider.php
+COPY app/Services/Auth/Socialite/ThreadsProvider.php /var/www/html/app/Services/Auth/Socialite/ThreadsProvider.php
+COPY app/Services/ConnectedAccounts/Threads/ThreadsTokenExchanger.php /var/www/html/app/Services/ConnectedAccounts/Threads/ThreadsTokenExchanger.php
+COPY app/Services/Publishing/Connectors/ThreadsConnector.php /var/www/html/app/Services/Publishing/Connectors/ThreadsConnector.php
+COPY app/Services/Metrics/Connectors/ThreadsMetricsConnector.php /var/www/html/app/Services/Metrics/Connectors/ThreadsMetricsConnector.php
+COPY app/Services/Engagement/Connectors/ThreadsEngagementConnector.php /var/www/html/app/Services/Engagement/Connectors/ThreadsEngagementConnector.php
+COPY config/services.php /var/www/html/config/services.php
+COPY app/Jobs/PublishPostTarget.php /var/www/html/app/Jobs/PublishPostTarget.php
+COPY app/Jobs/CloneThreadsPostToMastodon.php /var/www/html/app/Jobs/CloneThreadsPostToMastodon.php
+COPY app/Models/PostTarget.php /var/www/html/app/Models/PostTarget.php
+COPY database/migrations/2026_09_05_000001_add_mastodon_clone_remote_ids_to_post_targets.php /var/www/html/database/migrations/2026_09_05_000001_add_mastodon_clone_remote_ids_to_post_targets.php
+
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends supervisor \
+    && rm -rf /var/lib/apt/lists/*
+COPY docker/php-supervisord.conf /etc/supervisor/php-laravel.conf
+COPY docker/php-router.php /var/www/html/docker/php-router.php
+COPY docker/start.sh /usr/local/bin/shoutrrr-start
+RUN chmod 0755 /usr/local/bin/shoutrrr-start
+
+CMD ["shoutrrr-start"]
